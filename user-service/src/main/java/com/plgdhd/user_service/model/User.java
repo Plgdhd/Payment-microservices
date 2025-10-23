@@ -1,6 +1,7 @@
 package com.plgdhd.user_service.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,6 +12,11 @@ import java.util.List;
             @Index(name = "idx_user_email", columnList = "email"),
             @Index(name = "idx_user_surname", columnList = "surname")
         })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
