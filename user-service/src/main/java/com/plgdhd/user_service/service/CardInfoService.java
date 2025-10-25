@@ -37,6 +37,8 @@ public class CardInfoService {
 
     public CardInfoResponseDTO createCardInfo(CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoMapper.toEntity(cardInfoDTO);
+        cardInfo.setUser(userRepository.findById(cardInfoDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found")));
         cardInfo.setExpirationDate(LocalDate.now().plusYears(5));
         return cardInfoMapper.toResponseDTO(cardInfoRepository.save(cardInfo));
     }

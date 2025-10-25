@@ -26,10 +26,10 @@ public class CardInfoController {
     }
 
     @PostMapping
-    public ResponseEntity<CardInfoResponseDTO> createCard(CardInfoRequestDTO cardInfoDTO) {
+    public ResponseEntity<CardInfoResponseDTO> createCard(@RequestBody CardInfoRequestDTO cardInfoDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cardInfoService.createCardInfo(cardInfoDTO));
     }
-    //TODO test creating
+    //TODO tests creating
     @GetMapping
     public ResponseEntity<List<CardInfoResponseDTO>> getAllCards(
             @RequestParam(defaultValue = "0") int page,

@@ -24,5 +24,5 @@ public class CardInfoResponseDTO
     private String holder;
 
     @NotBlank(message = "Users id is required")
-    private long userId;
+    private Long userId;
 }
