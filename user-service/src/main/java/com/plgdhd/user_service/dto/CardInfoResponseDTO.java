@@ -9,7 +9,7 @@ import java.time.LocalTime;
 
 @AllArgsConstructor
 @Data
-public class CardInfoDTO
+public class CardInfoResponseDTO
 {
     private Long id;
 
@@ -23,4 +23,6 @@ public class CardInfoDTO
     @NotBlank(message = "Holder of card is required")
     private String holder;
 
+    @NotBlank(message = "Users id is required")
+    private long userId;
 }
