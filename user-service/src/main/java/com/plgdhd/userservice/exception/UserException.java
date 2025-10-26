@@ -1,4 +1,4 @@
-package com.plgdhd.user_service.exception;
+package com.plgdhd.userservice.exception;
 
 public class UserException extends RuntimeException {
     public UserException(String message) {

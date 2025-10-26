@@ -1,13 +1,11 @@
-package com.plgdhd.user_service.controller;
+package com.plgdhd.userservice.controller;
 
-import com.plgdhd.user_service.dto.CardInfoRequestDTO;
-import com.plgdhd.user_service.dto.CardInfoResponseDTO;
-import com.plgdhd.user_service.dto.UserResponseDTO;
-import com.plgdhd.user_service.service.CardInfoService;
+import com.plgdhd.userservice.dto.CardInfoRequestDTO;
+import com.plgdhd.userservice.dto.CardInfoResponseDTO;
+import com.plgdhd.userservice.service.CardInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -1,10 +1,10 @@
-package com.plgdhd.user_service.controller;
+package com.plgdhd.userservice.controller;
 
-import com.plgdhd.user_service.dto.CardInfoResponseDTO;
-import com.plgdhd.user_service.dto.UserRequestDTO;
-import com.plgdhd.user_service.dto.UserResponseDTO;
-import com.plgdhd.user_service.service.CardInfoService;
-import com.plgdhd.user_service.service.UserService;
+import com.plgdhd.userservice.dto.CardInfoResponseDTO;
+import com.plgdhd.userservice.dto.UserRequestDTO;
+import com.plgdhd.userservice.dto.UserResponseDTO;
+import com.plgdhd.userservice.service.CardInfoService;
+import com.plgdhd.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

@@ -1,13 +1,12 @@
-package com.plgdhd.user_service.service;
+package com.plgdhd.userservice.service;
 
-import com.plgdhd.user_service.dto.UserRequestDTO;
-import com.plgdhd.user_service.dto.UserResponseDTO;
-import com.plgdhd.user_service.exception.UserException;
-import com.plgdhd.user_service.model.User;
-import com.plgdhd.user_service.repository.UserRepository;
-import com.plgdhd.user_service.mapper.UserMapper;
+import com.plgdhd.userservice.dto.UserRequestDTO;
+import com.plgdhd.userservice.dto.UserResponseDTO;
+import com.plgdhd.userservice.exception.UserException;
+import com.plgdhd.userservice.model.User;
+import com.plgdhd.userservice.repository.UserRepository;
+import com.plgdhd.userservice.mapper.UserMapper;
 import jakarta.transaction.Transactional;
-import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

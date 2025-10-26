@@ -1,17 +1,16 @@
-package com.plgdhd.user_service.service;
+package com.plgdhd.userservice.service;
 
-import com.plgdhd.user_service.dto.CardInfoRequestDTO;
-import com.plgdhd.user_service.dto.CardInfoResponseDTO;
-import com.plgdhd.user_service.mapper.CardInfoMapper;
-import com.plgdhd.user_service.model.CardInfo;
-import com.plgdhd.user_service.repository.CardInfoRepository;
-import com.plgdhd.user_service.repository.UserRepository;
+import com.plgdhd.userservice.dto.CardInfoRequestDTO;
+import com.plgdhd.userservice.dto.CardInfoResponseDTO;
+import com.plgdhd.userservice.mapper.CardInfoMapper;
+import com.plgdhd.userservice.model.CardInfo;
+import com.plgdhd.userservice.repository.CardInfoRepository;
+import com.plgdhd.userservice.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,6 +23,8 @@ public class CardInfoService {
     private final UserRepository userRepository;
     private final CardInfoMapper cardInfoMapper;
 
+    @Value("${validity_period_of_card}")
+    private int VALIDITY_PERIOD_OF_CARD;
 
     @Autowired
     public CardInfoService(CardInfoRepository cardInfoRepository,
@@ -35,11 +36,12 @@ public class CardInfoService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public CardInfoResponseDTO createCardInfo(CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoMapper.toEntity(cardInfoDTO);
         cardInfo.setUser(userRepository.findById(cardInfoDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found")));
-        cardInfo.setExpirationDate(LocalDate.now().plusYears(5));
+        cardInfo.setExpirationDate(LocalDate.now().plusYears(VALIDITY_PERIOD_OF_CARD));
         return cardInfoMapper.toResponseDTO(cardInfoRepository.save(cardInfo));
     }
 

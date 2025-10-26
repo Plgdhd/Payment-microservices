@@ -1,4 +1,4 @@
-package com.plgdhd.user_service.dto;
+package com.plgdhd.userservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,9 +9,7 @@ import java.time.LocalDate;
 
 @AllArgsConstructor
 @Data
-public class UserResponseDTO {
-
-    private String id;
+public class UserRequestDTO {
 
     @NotBlank(message = "Users name is required")
     @Size(min = 1)

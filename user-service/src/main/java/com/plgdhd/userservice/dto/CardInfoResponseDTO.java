@@ -1,4 +1,4 @@
-package com.plgdhd.user_service.dto;
+package com.plgdhd.userservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

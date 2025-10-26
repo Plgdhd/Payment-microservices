@@ -1,8 +1,8 @@
-package com.plgdhd.user_service.mapper;
+package com.plgdhd.userservice.mapper;
 
-import com.plgdhd.user_service.dto.UserRequestDTO;
-import com.plgdhd.user_service.dto.UserResponseDTO;
-import com.plgdhd.user_service.model.User;
+import com.plgdhd.userservice.dto.UserRequestDTO;
+import com.plgdhd.userservice.dto.UserResponseDTO;
+import com.plgdhd.userservice.model.User;
 import org.mapstruct.Mapper;
 
 import java.util.List;

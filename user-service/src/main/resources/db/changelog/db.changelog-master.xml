@@ -5,8 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <include file="db/changelog/create-users.xml"/>
+    <include file="/db/changelog/V1.0/20251019_create_users.xml"/>
 
-    <include file="db/changelog/create-card-info.xml"/>
+    <include file="/db/changelog/V1.0/20251019_create_card_info.xml"/>
 
 </databaseChangeLog>

@@ -1,6 +1,6 @@
-package com.plgdhd.user_service.controller.advice;
+package com.plgdhd.userservice.controller.advice;
 
-import com.plgdhd.user_service.exception.UserException;
+import com.plgdhd.userservice.exception.UserException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,7 +1,6 @@
-package com.plgdhd.user_service.repository;
+package com.plgdhd.userservice.repository;
 
-import com.plgdhd.user_service.model.CardInfo;
-import com.plgdhd.user_service.model.User;
+import com.plgdhd.userservice.model.CardInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

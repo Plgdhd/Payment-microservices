@@ -1,4 +1,4 @@
-package com.plgdhd.user_service.model;
+package com.plgdhd.userservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;

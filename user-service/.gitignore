@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 *.yml
+!application.yml
 .gitattributes
 mvnw
 mvnw.cmd
@@ -26,7 +27,7 @@ test/
 *.iws
 *.iml
 *.ipr
-
+.env
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

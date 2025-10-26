@@ -1,6 +1,6 @@
-package com.plgdhd.user_service.repository;
+package com.plgdhd.userservice.repository;
 
-import com.plgdhd.user_service.model.User;
+import com.plgdhd.userservice.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailNative(String email);
 
 
-    @Query("SELECT u FROM User u WHERE u.surname LIKE %:surname%")
-    List<User> findBySurnameLike(@Param("surname") String surname);
+//    @Query("SELECT u FROM User u WHERE u.surname LIKE %:surname%")
+//    List<User> findBySurnameLike(@Param("surname") String surname);
 }
