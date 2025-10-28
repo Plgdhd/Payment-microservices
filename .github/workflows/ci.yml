@@ -21,17 +21,14 @@ jobs:
     defaults:
       run:
         working-directory: user-service
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
       - name: Build
         run: mvn -B compile
 
@@ -43,27 +40,31 @@ jobs:
         working-directory: user-service
 
     services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: user-service
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports: [5432:5432]
-        options: >-
-          --health-cmd="pg_isready -U postgres -d user-service"
-          --health-interval=10s --health-timeout=5s --health-retries=5
-
-      redis:
-        image: redis:7-alpine
-        ports: [6379:6379]
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=10s --health-timeout=5s --health-retries=5
+      docker:
+        image: docker:dind
+        privileged: true
+        ports:
+          - 2375:2375
+        options: --shm-size=2g
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Start Docker Daemon
+        run: |
+          dockerd > /dev/null 2>&1 &
+          echo "Waiting for Docker..."
+          timeout=30
+          while ! docker info > /dev/null 2>&1; do
+            if [ $timeout -le 0 ]; then
+              echo "Docker failed to start"
+              exit 1
+            fi
+            sleep 1
+            timeout=$((timeout - 1))
+          done
+          echo "Docker is ready!"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -76,14 +77,8 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
-      - name: Run Tests
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user-service
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
-          SPRING_REDIS_HOST: localhost
+      - name: Run Tests (Testcontainers)
         run: mvn -B test jacoco:report
 
       - name: Upload Coverage
@@ -98,25 +93,21 @@ jobs:
     defaults:
       run:
         working-directory: user-service
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
       - name: Download Jacoco
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
-
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -134,18 +125,15 @@ jobs:
     permissions:
       packages: write
       contents: read
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build & Push
         uses: docker/build-push-action@v5
         with:
