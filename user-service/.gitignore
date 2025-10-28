@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 *.yml
+!ci.yml
 !docker-compose.yml
 !application.yml
 !application-dev.yml
