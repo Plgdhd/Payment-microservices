@@ -5,7 +5,7 @@ on:
     branches: [ main, develop, feature/* ]
     paths:
       - 'user-service/**'
-      - '.github/workflows/user-service-ci.yml'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -52,14 +52,14 @@ jobs:
         ports: [5432:5432]
         options: >-
           --health-cmd="pg_isready -U postgres -d user-service"
-          --health-interval=10s --health-timeout=5s --health-retries:5
+          --health-interval=10s --health-timeout=5s --health-retries=5
 
       redis:
         image: redis:7-alpine
         ports: [6379:6379]
         options: >-
           --health-cmd="redis-cli ping"
-          --health-interval=10s --health-timeout=5s --health-retries:5
+          --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       - name: Checkout
@@ -71,7 +71,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache Maven **v4**
+      - name: Cache Maven
         uses: actions/cache@v4
         with:
           path: ~/.m2
@@ -86,7 +86,7 @@ jobs:
           SPRING_REDIS_HOST: localhost
         run: mvn -B test jacoco:report
 
-      - name: Upload Coverage **v4**
+      - name: Upload Coverage
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
@@ -102,12 +102,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-      - name: Download Jacoco **v4**
+      - name: Download Jacoco
         uses: actions/download-artifact@v4
+        with:
           name: jacoco-report
           path: target/site/jacoco/
 
@@ -119,7 +125,8 @@ jobs:
           mvn -B sonar:sonar \
             -Dsonar.projectKey=${{ github.repository }}-user-service \
             -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
   docker-push:
     needs: sonarqube
@@ -134,6 +141,10 @@ jobs:
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Push
         uses: docker/build-push-action@v5
