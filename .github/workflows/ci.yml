@@ -2,18 +2,26 @@ name: UserService CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feature/* ]
+    paths:
+      - 'user-service/**'
+      - '.github/workflows/user-service-ci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'user-service/**'
 
 env:
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-user-service
   REGISTRY: ghcr.io
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: user-service
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,13 +32,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build with Maven
+      - name: Build
         run: mvn -B compile
-
 
   test:
     needs: build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: user-service
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -60,13 +71,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache Maven
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
       - name: Run Tests
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/user-service
@@ -81,10 +85,13 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/jacoco.xml
 
-
   sonarqube:
     needs: test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: user-service
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -109,7 +116,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           mvn -B sonar:sonar \
-            -Dsonar.projectKey=${{ github.repository }} \
+            -Dsonar.projectKey=${{ github.repository }}-user-service \
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
@@ -135,8 +142,8 @@ jobs:
       - name: Build & Push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: user-service
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}-user-service:${{ github.sha }}
+            ghcr.io/${{ github.repository }}-user-service:${{ github.ref_name }}
