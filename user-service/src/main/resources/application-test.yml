@@ -21,3 +21,5 @@ spring:
       port: 6379
       repositories:
         enabled: false
+
+validity_period_of_card: 10
