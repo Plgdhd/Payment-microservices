@@ -42,10 +42,11 @@ jobs:
     services:
       docker:
         image: docker:dind
-        privileged: true
         ports:
           - 2375:2375
-        options: --shm-size=2g
+        options: >-
+          --privileged
+          --shm-size=2g
 
     steps:
       - name: Checkout
