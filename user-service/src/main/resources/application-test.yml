@@ -1,19 +1,23 @@
 spring:
   datasource:
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:postgresql:16-alpine:///userdb
-    username: test
-    password: test
+    url: jdbc:postgresql://localhost:5432/user-service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
   liquibase:
-    enabled: true
+    enabled: false
+
   cache:
     type: none
+
   data:
     redis:
       host: localhost
