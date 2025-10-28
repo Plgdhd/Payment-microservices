@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 *.yml
 !application.yml
+!application-test.yml
 .gitattributes
 mvnw
 mvnw.cmd
@@ -23,7 +24,7 @@ static/
 templates/
 ### IntelliJ IDEA ###
 .idea/
-test/
+
 *.iws
 *.iml
 *.ipr
