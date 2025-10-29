@@ -42,15 +42,29 @@ jobs:
         working-directory: user-service
 
     services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: userdb
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
       redis:
         image: redis:7-alpine
         ports:
           - 6379:6379
         options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=5
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -68,32 +82,19 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
 
-      - name: Wait for Redis
+      - name: Run Tests with Coverage
+        run: mvn -B clean verify
+
+      - name: Verify JaCoCo Report Exists
         run: |
-          echo "Waiting for Redis..."
-          for i in {1..20}; do
-            nc -z localhost 6379 && echo "Redis is ready!" && exit 0
-            echo "Still waiting..."
-            sleep 3
-          done
-          echo "Redis failed to start"
-          exit 1
+          echo "Checking JaCoCo report..."
+          ls -R target/site/jacoco || (echo "JaCoCo report not found!" && exit 1)
 
-      - name: Run Tests (Jacoco)
-        run: mvn -B test jacoco:report
-
-      - name: Verify Jacoco report exists
-        run: |
-          echo "Checking for jacoco.xml..."
-          ls -l target/site/jacoco || (echo "No jacoco folder found!" && exit 1)
-          test -f target/site/jacoco/jacoco.xml || (echo "jacoco.xml missing!" && exit 1)
-
-      - name: Upload Coverage
-        if: always()
+      - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: user-service/target/site/jacoco/jacoco.xml
+          path: user-service/target/site/jacoco/
 
   sonarqube:
     needs: test
@@ -101,6 +102,7 @@ jobs:
     defaults:
       run:
         working-directory: user-service
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,13 +115,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Download Jacoco report
+      - name: Download Jacoco Report
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
 
-      - name: Verify Jacoco after download
+      - name: List Downloaded Files
         run: |
           echo "Downloaded files:"
           ls -R target/site/jacoco/
@@ -141,6 +143,9 @@ jobs:
     permissions:
       packages: write
       contents: read
+    defaults:
+      run:
+        working-directory: user-service
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -152,10 +157,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Build & Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: user-service
+          context: .
           push: true
           tags: |
             ghcr.io/${{ github.repository }}-user-service:${{ github.sha }}
