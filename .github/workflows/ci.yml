@@ -24,11 +24,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+
       - name: Build
         run: mvn -B compile
 
@@ -40,32 +42,19 @@ jobs:
         working-directory: user-service
 
     services:
-      docker:
-        image: docker:dind
+      redis:
+        image: redis:7-alpine
         ports:
-          - 2375:2375
+          - 6379:6379
         options: >-
-          --privileged
-          --shm-size=2g
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=5
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Start Docker Daemon
-        run: |
-          dockerd > /dev/null 2>&1 &
-          echo "Waiting for Docker..."
-          timeout=30
-          while ! docker info > /dev/null 2>&1; do
-            if [ $timeout -le 0 ]; then
-              echo "Docker failed to start"
-              exit 1
-            fi
-            sleep 1
-            timeout=$((timeout - 1))
-          done
-          echo "Docker is ready!"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -78,6 +67,17 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+
+      - name: Wait for Redis
+        run: |
+          echo "Waiting for Redis..."
+          for i in {1..20}; do
+            nc -z localhost 6379 && echo "Redis is ready!" && exit 0
+            echo "Still waiting..."
+            sleep 3
+          done
+          echo "Redis failed to start"
+          exit 1
 
       - name: Run Tests (Testcontainers)
         run: mvn -B test jacoco:report
@@ -99,16 +99,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+
       - name: Download Jacoco
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
+
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -129,12 +132,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build & Push
         uses: docker/build-push-action@v5
         with:
