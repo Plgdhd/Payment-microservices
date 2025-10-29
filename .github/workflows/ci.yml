@@ -79,14 +79,21 @@ jobs:
           echo "Redis failed to start"
           exit 1
 
-      - name: Run Tests (Testcontainers)
+      - name: Run Tests (Jacoco)
         run: mvn -B test jacoco:report
 
+      - name: Verify Jacoco report exists
+        run: |
+          echo "Checking for jacoco.xml..."
+          ls -l target/site/jacoco || (echo "No jacoco folder found!" && exit 1)
+          test -f target/site/jacoco/jacoco.xml || (echo "jacoco.xml missing!" && exit 1)
+
       - name: Upload Coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: target/site/jacoco/jacoco.xml
+          path: user-service/target/site/jacoco/jacoco.xml
 
   sonarqube:
     needs: test
@@ -106,11 +113,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Download Jacoco
+      - name: Download Jacoco report
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
+
+      - name: Verify Jacoco after download
+        run: |
+          echo "Downloaded files:"
+          ls -R target/site/jacoco/
 
       - name: SonarQube Scan
         env:
