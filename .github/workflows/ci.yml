@@ -3,165 +3,69 @@ name: UserService CI/CD
 on:
   push:
     branches: [ main, develop, feature/* ]
-    paths:
-      - 'user-service/**'
-      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'user-service/**'
-
-env:
-  IMAGE_NAME: ${{ github.repository }}-user-service
-  REGISTRY: ghcr.io
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: user-service
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build
-        run: mvn -B compile
-
-  test:
-    needs: build
+  build-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: user-service
 
     services:
-      postgres:
-        image: postgres:16-alpine
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: userdb
-        options: >-
-          --health-cmd="pg_isready -U test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
       redis:
         image: redis:7-alpine
         ports:
           - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
+          --health-interval 5s
+          --health-timeout 3s
           --health-retries 5
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
-          java-version: '21'
           distribution: 'temurin'
+          java-version: '21'
+          cache: maven
 
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      - name: Build & Test with Coverage
+        run: mvn clean verify -B
 
-      - name: Run Tests with Coverage
-        run: mvn -B clean verify
-
-      - name: Verify JaCoCo Report Exists
-        run: |
-          echo "Checking JaCoCo report..."
-          ls -R target/site/jacoco || (echo "JaCoCo report not found!" && exit 1)
-
-      - name: Upload Coverage Report
+      - name: Upload JaCoCo report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: user-service/target/site/jacoco/
 
   sonarqube:
-    needs: test
+    needs: build-test
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: user-service
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
-          fetch-depth: 0
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
           distribution: 'temurin'
+          java-version: '21'
+          cache: maven
 
-      - name: Download Jacoco Report
+      - name: Download coverage artifact
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
 
-      - name: List Downloaded Files
-        run: |
-          echo "Downloaded files:"
-          ls -R target/site/jacoco/
-
-      - name: SonarQube Scan
+      - name: Run SonarQube analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          mvn -B sonar:sonar \
-            -Dsonar.projectKey=${{ github.repository }}-user-service \
-            -Dsonar.host.url=$SONAR_HOST_URL \
+          mvn sonar:sonar \
             -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-
-  docker-push:
-    needs: sonarqube
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    defaults:
-      run:
-        working-directory: user-service
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build & Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}-user-service:${{ github.sha }}
-            ghcr.io/${{ github.repository }}-user-service:${{ github.ref_name }}
