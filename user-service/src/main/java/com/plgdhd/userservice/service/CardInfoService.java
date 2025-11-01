@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,7 +63,7 @@ public class CardInfoService {
     }
 
     @Transactional
-    @CacheEvict(value = "cards", allEntries = true)
+    @CachePut(value = "cards", key = "#id")
     public CardInfoResponseDTO updateCardInfo(long id, CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card id " + id + " not found!"));
