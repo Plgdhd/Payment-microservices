@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class CardInfoService {
     }
 
     @Transactional
-    @CacheEvict(value = "cards", allEntries = true)
+    @CachePut(value = "card", key="#cardInfoDTO.userId")
     public CardInfoResponseDTO createCardInfo(CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoMapper.toEntity(cardInfoDTO);
         cardInfo.setUser(userRepository.findById(cardInfoDTO.getUserId())
@@ -63,7 +64,10 @@ public class CardInfoService {
     }
 
     @Transactional
-    @CachePut(value = "cards", key = "#id")
+    @Caching(evict = {
+        @CacheEvict(value = "cards", allEntries = true),
+        @CacheEvict(value = "card", key = "#cardInfoDTO.userId")
+    })
     public CardInfoResponseDTO updateCardInfo(long id, CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card id " + id + " not found!"));
@@ -75,7 +79,10 @@ public class CardInfoService {
     }
 
     @Transactional
-    @CacheEvict(value = "cards", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "cards", allEntries = true),
+            @CacheEvict(value = "card", allEntries = true)
+    })
     public void deleteCardInfoById(long id) {
         CardInfo cardInfo = cardInfoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card id " + id + " not found!"));
