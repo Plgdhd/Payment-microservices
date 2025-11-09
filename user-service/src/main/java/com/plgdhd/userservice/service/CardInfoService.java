@@ -9,6 +9,10 @@ import com.plgdhd.userservice.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,13 +34,13 @@ public class CardInfoService {
     public CardInfoService(CardInfoRepository cardInfoRepository,
                            CardInfoMapper cardInfoMapper,
                            UserRepository userRepository) {
-
         this.cardInfoRepository = cardInfoRepository;
         this.cardInfoMapper = cardInfoMapper;
         this.userRepository = userRepository;
     }
 
     @Transactional
+    @CachePut(value = "card", key="#cardInfoDTO.userId")
     public CardInfoResponseDTO createCardInfo(CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoMapper.toEntity(cardInfoDTO);
         cardInfo.setUser(userRepository.findById(cardInfoDTO.getUserId())
@@ -45,10 +49,13 @@ public class CardInfoService {
         return cardInfoMapper.toResponseDTO(cardInfoRepository.save(cardInfo));
     }
 
+    @Cacheable(value = "cards", key = "#page + '-' + #size")
     public Page<CardInfoResponseDTO> findAllCardInfo(int page, int size) {
-        return cardInfoRepository.findAll(PageRequest.of(page, size)).map(cardInfoMapper::toResponseDTO);
+        return cardInfoRepository.findAll(PageRequest.of(page, size))
+                .map(cardInfoMapper::toResponseDTO);
     }
 
+    @Cacheable(value = "cards", key = "#userId")
     public List<CardInfoResponseDTO> findAllUserCards(long userId) {
         return cardInfoRepository.findByUserId(userId)
                 .stream()
@@ -57,6 +64,10 @@ public class CardInfoService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "cards", allEntries = true),
+        @CacheEvict(value = "card", key = "#cardInfoDTO.userId")
+    })
     public CardInfoResponseDTO updateCardInfo(long id, CardInfoRequestDTO cardInfoDTO) {
         CardInfo cardInfo = cardInfoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card id " + id + " not found!"));
@@ -68,10 +79,13 @@ public class CardInfoService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "cards", allEntries = true),
+            @CacheEvict(value = "card", allEntries = true)
+    })
     public void deleteCardInfoById(long id) {
         CardInfo cardInfo = cardInfoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card id " + id + " not found!"));
         cardInfoRepository.delete(cardInfo);
     }
-
 }

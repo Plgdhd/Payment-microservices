@@ -4,14 +4,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class UserResponseDTO {
 
-    private String id;
+    private Long id;
 
     @NotBlank(message = "Users name is required")
     @Size(min = 1)

@@ -8,11 +8,16 @@ import com.plgdhd.userservice.repository.UserRepository;
 import com.plgdhd.userservice.mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
+@CacheConfig(cacheNames = "users")
 public class UserService {
 
     private UserRepository userRepository;
@@ -24,6 +29,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    @CachePut(key = "#result.id")
     public UserResponseDTO createUser(UserRequestDTO userDTO) {
         if(userRepository.existsByEmail(userDTO.getEmail())){
             throw new UserException("Email already in use");
@@ -36,12 +42,14 @@ public class UserService {
         return userRepository.findAll(PageRequest.of(page, size)).map(userMapper::toResponseDTO);
     }
 
+    @Cacheable(key = "#id")
     public UserResponseDTO getById(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
         return userMapper.toResponseDTO(user);
     }
 
+    @Cacheable(key = "'email:' + #email ")
     public UserResponseDTO getByEmail(String email) {
         User user = userRepository.findByEmailNative(email)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
@@ -49,6 +57,7 @@ public class UserService {
     }
 
     @Transactional
+    @CachePut(key = "#id")
     public UserResponseDTO updateUser(long id, UserRequestDTO userDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
@@ -60,6 +69,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(key = "#id")
     public void deleteUser(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
