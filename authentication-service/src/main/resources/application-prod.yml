@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:user-service}
+    username: postgres
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+jwt:
+  secret: ${JWT_SECRET:bob}
+  access-expiration-sec: ${JWT_ACCESS_EXPIRATION_SEC:700}
+  refresh-expiration-sec: ${JWT_REFRESH_EXPIRATION_SEC:86400}
+
