@@ -8,7 +8,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "order_items", indexes = {
-
+        @Index(name = "idx_order_quantity", columnList = "quantity"),
+        @Index(name = "idx_order_id", columnList = "order_id"),
+        @Index(name = "idx_item_id", columnList = "item_id")
 })
 public class OrderItem {
     @Id
