@@ -1,0 +1,59 @@
+server:
+  port: 0
+
+spring:
+  liquibase:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  datasource:
+    url: jdbc:tc:postgresql:16:///testdb
+    username: test
+    password: test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+#  kafka:
+#    bootstrap-servers: localhost:19092
+#    consumer:
+#      group-id: order-service-test
+
+user:
+  service:
+    url: http://localhost:8083
+
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 100
+            read-timeout: 100
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userService:
+        slidingWindowSize: 2
+        minimumNumberOfCalls: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 1s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  retry:
+    instances:
+      userService:
+        maxAttempts: 1
+        waitDuration: 100ms
+
+logging:
+  level:
+    com.plgdhd.orderservice: DEBUG
+    org.springframework: WARN
+    org.testcontainers: INFO
