@@ -19,6 +19,7 @@ public class Order {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    //TODO полностью переделать без модели юзера
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

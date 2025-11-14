@@ -2,6 +2,13 @@ server:
   port: 8082
 
 spring:
+  config:
+    activate:
+      on-profile: dev
+
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
@@ -9,22 +16,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    show-sql: false
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:user-service}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: order-service
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
+user:
+  service:
+    url: ${USER_SERVICE_URL}
 
 resilience4j:
   circuitbreaker:
@@ -40,7 +42,3 @@ resilience4j:
       userService:
         maxAttempts: 3
         waitDuration: 500ms
-
-user:
-  service:
-    url: http://localhost:8081
