@@ -1,3 +1,6 @@
+server:
+  port: 8082
+
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
@@ -22,3 +25,22 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userService:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  retry:
+    instances:
+      userService:
+        maxAttempts: 3
+        waitDuration: 500ms
+
+user:
+  service:
+    url: http://localhost:8081

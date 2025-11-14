@@ -11,7 +11,7 @@ listener/
 mvnw.cmd
 mvnw
 .idea/
-test/
+
 ### STS ###
 .apt_generated
 .classpath

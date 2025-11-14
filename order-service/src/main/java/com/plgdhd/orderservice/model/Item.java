@@ -24,6 +24,6 @@ public class Item {
     private String name;
 
     @Column(name = "price", nullable = false)
-    private Integer price;
+    private Long price;
 
 }

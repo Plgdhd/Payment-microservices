@@ -1,5 +1,6 @@
 package com.plgdhd.orderservice.model;
 
+import com.plgdhd.orderservice.common.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,8 @@ public class Order {
     private User user;
 
     @Column(name = "status", nullable = false, length = 30)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @Column(name = "creation_date", nullable = false)
     private LocalDate creationDate;
