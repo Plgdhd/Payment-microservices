@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderCreateDTO {
 
-    @NotBlank(message = "User id is required")
+    @NotNull(message = "User id is required")
     private Long userId;
 
     @NotBlank(message = "User email is required")

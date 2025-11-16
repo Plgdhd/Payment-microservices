@@ -1,7 +1,7 @@
 spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
-    enabled: true
+    enabled: false
 
   jpa:
     hibernate:
