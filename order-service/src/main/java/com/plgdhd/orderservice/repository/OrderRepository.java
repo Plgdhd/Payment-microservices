@@ -12,9 +12,5 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    @Query("SELECT o FROM Order o JOIN FETCH o.user WHERE o.id = :id")
-    Optional<Order> findByIdWithUser(@Param("id") Long id);
-
-    @Query("SELECT o FROM Order o JOIN FETCH o.user WHERE o.user.email = :email")
-    Page<Order> findByUserEmail(@Param("email") String email, Pageable pageable);
+    Page<Order> findByUserId(Long userId, Pageable pageable);
 }

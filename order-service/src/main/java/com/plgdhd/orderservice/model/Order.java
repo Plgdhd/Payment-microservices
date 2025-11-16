@@ -19,10 +19,8 @@ public class Order {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    //TODO полностью переделать без модели юзера
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "status", nullable = false, length = 30)
     @Enumerated(EnumType.STRING)

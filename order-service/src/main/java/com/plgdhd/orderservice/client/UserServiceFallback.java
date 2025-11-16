@@ -5,9 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserServiceFallback implements UserServiceClient {
-
     @Override
-    public UserInfoDTO getUserByEmail(String email) {
+    public UserInfoDTO getUserByEmail(String email, String token) {
         return new UserInfoDTO(null, "Service", "Unavailable", null, email);
     }
 }

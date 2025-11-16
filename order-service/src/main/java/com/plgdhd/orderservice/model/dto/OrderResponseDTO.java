@@ -18,7 +18,7 @@ public class OrderResponseDTO {
     private String status;
     private LocalDate creationDate;
 
-    private UserInfoDTO user;
+    private UserInfoDTO userInfo ;
 
     private List<OrderItemResponseDTO> items;
 
