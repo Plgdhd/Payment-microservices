@@ -1,4 +1,4 @@
-name: Payment Microservices CI/CD
+name: UserService CI/CD
 
 on:
   push:
@@ -7,8 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  user-service-test:
-    name: Build & Test User Service
+  build-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,71 +32,36 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build & Test User Service with Coverage
+      - name: Build & Test with Coverage
         run: mvn clean verify -B
 
-      - name: Upload User Service JaCoCo report
+      - name: Upload JaCoCo report
         uses: actions/upload-artifact@v4
         with:
-          name: user-jacoco-report
+          name: jacoco-report
           path: user-service/target/site/jacoco/
 
-  order-service-test:
-    name: Build & Test Order Service
+  sonarqube:
+    needs: build-test
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: order-service
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
-        env:
-          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
-          POSTGRES_USER: postgres
-          POSTGRES_DB: testdb
+        working-directory: user-service
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
           cache: maven
 
-      - name: Build & Test Order Service with Coverage
-        run: mvn clean verify -B
-
-      - name: Upload Order Service JaCoCo report
-        uses: actions/upload-artifact@v4
-        with:
-          name: order-jacoco-report
-          path: order-service/target/site/jacoco/
-
-  sonarqube:
-    needs: [user-service-test, order-service-test]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions:setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: maven
-
-      - name: Download coverage artifacts
+      - name: Download coverage artifact
         uses: actions/download-artifact@v4
         with:
-          path: .
+          name: jacoco-report
+          path: target/site/jacoco/
 
       - name: Compile project
         run: mvn clean compile -B
@@ -111,7 +75,6 @@ jobs:
             -Dsonar.projectKey=Plgdhd_Payment-microservices \
             -Dsonar.organization=plgdhd \
             -Dsonar.host.url=https://sonarcloud.io \
-            \
-            -Dsonar.coverage.jacoco.xmlReportPaths=user-service/target/site/jacoco/jacoco.xml,order-service/target/site/jacoco/jacoco.xml \
-            \
-            -Dsonar.java.binaries=user-service/target/classes,order-service/target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.java.binaries=target/classes
+ 
