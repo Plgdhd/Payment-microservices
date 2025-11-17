@@ -4,6 +4,8 @@ server:
 spring:
   cloud:
     openfeign:
+      circuitbreaker:
+        enabled: true
       client:
         config:
           default:
@@ -25,15 +27,15 @@ spring:
     url: jdbc:tc:postgresql:16:///testdb
     username: test
     password: test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
 
-#  kafka:
-#    bootstrap-servers: localhost:19092
-#    consumer:
-#      group-id: order-service-test
+  # Kafka отключен — ок
+  # kafka:
+  #   bootstrap-servers: localhost:19092
 
 user:
   service:
-    url: http://localhost:8083
+    url: http://localhost:${wiremock.port}
 
 resilience4j:
   circuitbreaker:
@@ -55,3 +57,4 @@ logging:
     com.plgdhd.orderservice: DEBUG
     org.springframework: WARN
     org.testcontainers: INFO
+    com.github.tomakehurst.wiremock: INFO
