@@ -8,6 +8,7 @@ on:
 
 jobs:
   user-service-test:
+    name: Build & Test User Service
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,6 +43,7 @@ jobs:
           path: user-service/target/site/jacoco/
 
   order-service-test:
+    name: Build & Test Order Service
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -57,10 +59,10 @@ jobs:
           --health-interval 5s
           --health-timeout 3s
           --health-retries 5
-          env:
-            POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
-            POSTGRES_USER: postgres
-            POSTGRES_DB: testdb 
+        env:
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb
 
     steps:
       - uses: actions/checkout@v4
@@ -86,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions:setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -95,7 +97,6 @@ jobs:
       - name: Download coverage artifacts
         uses: actions/download-artifact@v4
         with:
-
           path: .
 
       - name: Compile project
