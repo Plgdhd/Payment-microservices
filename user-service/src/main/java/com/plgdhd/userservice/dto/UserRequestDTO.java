@@ -1,6 +1,7 @@
 package com.plgdhd.userservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 public class UserRequestDTO {
+
+    @NotNull(message = "Users id is required")
+    private long id;
 
     @NotBlank(message = "Users name is required")
     @Size(min = 1)
