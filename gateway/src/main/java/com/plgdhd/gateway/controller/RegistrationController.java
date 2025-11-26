@@ -59,7 +59,7 @@ public class RegistrationController {
                                         .uri(authServiceBaseUrl + "/api/auth/" + createdAuthId)
                                         .retrieve()
                                         .toBodilessEntity()
-                                        .flatMap(rollback -> Mono.error(new RuntimeException("Registration failed. Rollback executed.")));
+                                        .flatMap(rollback -> Mono.error(new RuntimeException("Registration failed. Rollback executed")));
                             });
                 });
     }
