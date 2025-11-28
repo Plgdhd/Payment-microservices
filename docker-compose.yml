@@ -35,7 +35,7 @@ services:
     image: postgres:16-alpine
     container_name: order-postgres
     environment:
-      POSTGRES_DB: order_service
+      POSTGRES_DB: order-service
       POSTGRES_USER: user
       POSTGRES_PASSWORD: ${ORDER_SERVICE_DB_PASSWORD}
     volumes:
