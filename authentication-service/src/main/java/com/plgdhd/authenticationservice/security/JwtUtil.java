@@ -20,7 +20,7 @@ public class JwtUtil {
     private String secret;
 
     @Value("${jwt.access-expiration-sec}")
-    private long accessExp;
+    private long accessExp = 700;
 
     @Value("${jwt.refresh-expiration-sec}")
     private long refreshExp;

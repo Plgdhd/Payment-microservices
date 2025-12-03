@@ -10,10 +10,10 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name = "user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_order_user"
-                    references="users(id)" />
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
             </column>
+
 
             <column name="status" type="VARCHAR(30)">
                 <constraints nullable="false"/>
