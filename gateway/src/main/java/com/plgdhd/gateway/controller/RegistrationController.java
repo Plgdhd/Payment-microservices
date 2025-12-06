@@ -27,7 +27,7 @@ public class RegistrationController {
     @Value("${services.user-url}")
     private String userServiceBaseUrl;
 
-    @PostMapping("/register-orchestrated")
+    @PostMapping("/register")
     public Mono<ResponseEntity<String>> register(@RequestBody RegistrationRequest request) {
 
         return webClientBuilder.build()

@@ -2,6 +2,8 @@ server:
   port: 8083
 
 spring:
+  application:
+    name: order-service
   config:
     activate:
       on-profile: prod
@@ -38,3 +40,10 @@ resilience4j:
       userService:
         maxAttempts: 3
         waitDuration: 500ms
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true

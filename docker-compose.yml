@@ -130,7 +130,14 @@ services:
       - user-service
       - order-service
 
-#
+  eureka-server:
+    build: ./eureka
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+
+
+  #
 #  kafka:
 #    image: confluentinc/cp-kafka:7.5.1
 #    container_name: kafka

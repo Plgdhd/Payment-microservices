@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: user-service
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
@@ -33,3 +35,10 @@ jwt:
   secret: ${JWT_SECRET}
 server:
   port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
