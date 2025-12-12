@@ -1,7 +1,7 @@
 package com.plgdhd.paymentservice.service;
 
 import com.plgdhd.paymentservice.client.RandomApiClient;
-import com.plgdhd.paymentservice.dto.PaymentDto;
+import com.plgdhd.paymentservice.model.dto.PaymentDto;
 import com.plgdhd.paymentservice.model.Payment;
 import com.plgdhd.paymentservice.mapper.PaymentMapper;
 import com.plgdhd.paymentservice.repository.PaymentRepository;

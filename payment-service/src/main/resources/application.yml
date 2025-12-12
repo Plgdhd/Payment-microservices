@@ -6,6 +6,20 @@ spring:
       uri: ${MONGO_URI:mongodb://localhost:27017/payments}
       database: paymentdb
 
+  kafka:
+    bootstrap-servers:
+      - localhost:9092
+
+    consumer:
+      group-id: KafkaCourse-lecture6-ClickStream
+      auto-offset-reset: earliest
+
+    producer:
+      client-id: KafkaCourse-lecture6-UserAction
+
+    template:
+      default-topic: KafkaCourse-UserAction-ClickStream
+
 random:
   api:
     url: ${RANDOM_API_URL:https://www.randomnumberapi.com}

@@ -1,6 +1,6 @@
 package com.plgdhd.paymentservice.controller;
 
-import com.plgdhd.paymentservice.dto.PaymentDto;
+import com.plgdhd.paymentservice.model.dto.PaymentDto;
 import com.plgdhd.paymentservice.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.plgdhd.paymentservice.dto;
+package com.plgdhd.paymentservice.model.dto;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
@@ -12,12 +12,11 @@ import java.time.Instant;
 @Builder
 public class PaymentDto {
     private String id;
-    @NotBlank
+    @NotNull
     private Long orderId;
-    @NotBlank
+    @NotNull
     private Long userId;
-    private String status;
-    private Instant timestamp;
+
     @NotNull
     @DecimalMin("0.00")
     private BigDecimal paymentAmount;
