@@ -15,6 +15,7 @@ import java.time.Instant;
 @Builder
 @Document(collection = "payments")
 public class Payment {
+
     @Id
     private String id;
 

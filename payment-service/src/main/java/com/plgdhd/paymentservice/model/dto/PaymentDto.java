@@ -11,7 +11,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class PaymentDto {
-    private String id;
+//    private String id;
     @NotNull
     private Long orderId;
     @NotNull

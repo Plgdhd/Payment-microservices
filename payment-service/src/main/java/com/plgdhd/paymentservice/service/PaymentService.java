@@ -6,6 +6,7 @@ import com.plgdhd.paymentservice.model.Payment;
 import com.plgdhd.paymentservice.mapper.PaymentMapper;
 import com.plgdhd.paymentservice.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +15,20 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     private final RandomApiClient randomApiClient;
+
+    @Autowired
+    public PaymentService(PaymentRepository paymentRepository,
+                          PaymentMapper paymentMapper,
+                          RandomApiClient randomApiClient) {
+        this.paymentRepository = paymentRepository;
+        this.paymentMapper = paymentMapper;
+        this.randomApiClient = randomApiClient;
+    })
 
     @Transactional
     public PaymentDto createPayment(PaymentDto dto) {

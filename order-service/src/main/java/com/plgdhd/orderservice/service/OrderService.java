@@ -51,6 +51,7 @@ public class OrderService {
         Order order = orderMapper.toEntity(orderCreateDTO);
         order.setUserId(userInfo.getId());
         order.setStatus(OrderStatus.PENDING);
+        //TODO CALL KAFKA HERE
         order.setCreationDate(LocalDate.now());
         order = orderRepository.save(order);
 
@@ -191,6 +192,15 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found"));
         order.setStatus(OrderStatus.CANCELLED);
+    }
+
+    public void changeOrderStatus(Long orderId, OrderStatus orderStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+
+        order.setStatus(orderStatus);
+
+        orderRepository.save(order);
     }
 
     @CircuitBreaker(name = "user-service", fallbackMethod = "deleteOrderFallback")
