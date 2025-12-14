@@ -21,7 +21,7 @@
                              references="items(id)"/>
             </column>
 
-            <column name="quantity" type="INT">
+            <column name="quantity" type="DECIMAL(19, 2)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

@@ -2,8 +2,10 @@ package com.plgdhd.orderservice.service;
 
 import com.plgdhd.orderservice.client.UserServiceClient;
 import com.plgdhd.orderservice.common.OrderStatus;
+import com.plgdhd.orderservice.event.OrderCreatedEvent;
 import com.plgdhd.orderservice.exception.ItemNotFoundException;
 import com.plgdhd.orderservice.exception.OrderNotFoundException;
+import com.plgdhd.orderservice.kafka.OrderProducer;
 import com.plgdhd.orderservice.model.dto.*;
 import com.plgdhd.orderservice.mapper.OrderMapper;
 import com.plgdhd.orderservice.model.*;
@@ -15,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,33 +32,36 @@ public class OrderService {
     private final ItemRepository itemRepository;
     private final OrderMapper orderMapper;
     private final UserServiceClient userServiceClient;
+    private final OrderProducer orderProducer;
 
     @Autowired
     public OrderService(OrderRepository orderRepository,
                         OrderItemRepository orderItemRepository,
                         ItemRepository itemRepository,
                         OrderMapper orderMapper,
-                        UserServiceClient userServiceClient) {
+                        UserServiceClient userServiceClient,
+                        OrderProducer orderProducer) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.itemRepository = itemRepository;
         this.orderMapper = orderMapper;
         this.userServiceClient = userServiceClient;
+        this.orderProducer = orderProducer;
     }
 
     @CircuitBreaker(name = "userService", fallbackMethod = "createOrderFallback")
     @Retry(name = "userService")
     @Transactional
     public OrderResponseDTO createOrder(OrderCreateDTO orderCreateDTO) {
-        UserInfoDTO userInfo = userServiceClient.getUserByEmail(orderCreateDTO.getUserEmail());
 
+        UserInfoDTO userInfo = userServiceClient.getUserByEmail(orderCreateDTO.getUserEmail());
         Order order = orderMapper.toEntity(orderCreateDTO);
         order.setUserId(userInfo.getId());
         order.setStatus(OrderStatus.PENDING);
-        //TODO CALL KAFKA HERE
         order.setCreationDate(LocalDate.now());
         order = orderRepository.save(order);
 
+        BigDecimal totalQuantity = BigDecimal.ZERO;
         List<OrderItemResponseDTO> orderItemsDTOs = new ArrayList<>();
 
         for (OrderItemCreateDTO orderItemDTO : orderCreateDTO.getOrderItems()) {
@@ -64,11 +71,20 @@ public class OrderService {
             OrderItem orderItem = orderMapper.toOrderItemEntity(orderItemDTO);
             orderItem.setOrder(order);
             orderItem.setItem(item);
+            totalQuantity = totalQuantity.add(orderItem.getQuantity());
             orderItemRepository.save(orderItem);
 
 
             orderItemsDTOs.add(orderMapper.toOrderItemResponseDTO(orderItem));
         }
+
+        OrderCreatedEvent event = OrderCreatedEvent.builder()
+                .orderId(order.getId())
+                .userId(order.getUserId())
+                .quantity(totalQuantity)
+                .build();
+
+        orderProducer.sendOrderEvent(event);
 
         OrderResponseDTO response = orderMapper.toResponseDTO(order);
         response.setItems(orderItemsDTOs);

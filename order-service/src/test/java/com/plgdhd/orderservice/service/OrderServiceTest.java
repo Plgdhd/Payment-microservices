@@ -21,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -69,12 +71,12 @@ class OrderServiceTest {
         testOrderItem.setId(10L);
         testOrderItem.setOrder(testOrder);
         testOrderItem.setItem(testItem);
-        testOrderItem.setQuantity(2);
+        testOrderItem.setQuantity(BigDecimal.valueOf(2));
 
         createDTO = new OrderCreateDTO();
         createDTO.setUserId(USER_ID);
         createDTO.setUserEmail(TEST_EMAIL);
-        createDTO.setOrderItems(List.of(new OrderItemCreateDTO(ITEM_ID, 2)));
+        createDTO.setOrderItems(List.of(new OrderItemCreateDTO(ITEM_ID, BigDecimal.valueOf(2))));
 
         userInfoDTO = new UserInfoDTO(USER_ID, "Alex", "Plgdhd", LocalDate.of(1995, 5, 15), TEST_EMAIL);
 
@@ -84,7 +86,7 @@ class OrderServiceTest {
         responseDTO.setCreationDate(LocalDate.now());
         responseDTO.setUserInfo(userInfoDTO);
         responseDTO.setItems(List.of(
-                new OrderItemResponseDTO(10L, "Laptop", 999L, 2) // Цена в DTO должна соответствовать Long
+                new OrderItemResponseDTO(10L, "Laptop", 999L, BigDecimal.valueOf(2)) // Цена в DTO должна соответствовать Long
         ));
     }
 
@@ -110,7 +112,7 @@ class OrderServiceTest {
             oi.setId(10L);
             oi.setOrder(testOrder);
             oi.setItem(testItem);
-            oi.setQuantity(2);
+            oi.setQuantity(BigDecimal.valueOf(2));
             return oi;
         });
         when(orderMapper.toResponseDTO(any(Order.class))).thenReturn(responseDTO);

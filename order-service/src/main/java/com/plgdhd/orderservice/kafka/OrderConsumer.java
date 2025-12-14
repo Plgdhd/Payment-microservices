@@ -28,7 +28,7 @@ public class OrderConsumer {
             orderService.changeOrderStatus(event.getOrderId(), OrderStatus.COMPLETED);
         }
         else{
-            orderService.changeOrderStatus(event.getOrderId(), OrderStatus.CANCELLED);
+            orderService.changeOrderStatus(event.getOrderId(), OrderStatus.FAILED);
         }
     }
 }

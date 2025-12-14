@@ -163,14 +163,15 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -183,10 +184,15 @@ services:
       - payment_mongo_data:/data/db
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${PAYMENT_SERVICE_DB_PASSWORD}
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 5s
-      timeout: 3s
+      test: >
+        mongosh -u admin -p "$PAYMENT_SERVICE_DB_PASSWORD"
+        --authenticationDatabase admin
+        --eval "db.adminCommand('ping')"
+      timeout: 5s
       retries: 10
 
   payment-service:
@@ -198,11 +204,11 @@ services:
       - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - MONGO_URI=mongodb://payment-mongo:27017/paymentdb
-      - RANDOM_API_URL=https://www.randomnumberapi.com
       - SERVER_PORT=8084
+      - MONGO_URI=mongodb://admin:${PAYMENT_SERVICE_DB_PASSWORD}@payment-mongo:27017/paymentdb?authSource=admin
+      - RANDOM_API_URL=https://www.randomnumberapi.com
       - EUREKA_URL=http://eureka-server:8761/eureka
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
       payment-mongo:
         condition: service_healthy

@@ -23,6 +23,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.server.ResponseStatusException;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.math.BigDecimal;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -115,7 +117,7 @@ public class OrderServiceIntegrationTest {
         OrderCreateDTO createDTO = new OrderCreateDTO(
                 USER_ID,
                 TEST_EMAIL,
-                List.of(new OrderItemCreateDTO(ITEM_ID, 2))
+                List.of(new OrderItemCreateDTO(ITEM_ID, BigDecimal.valueOf(2)))
         );
 
         OrderResponseDTO result = orderService.createOrder(createDTO);
