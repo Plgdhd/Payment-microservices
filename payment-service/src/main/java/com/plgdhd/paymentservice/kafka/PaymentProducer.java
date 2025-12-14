@@ -19,7 +19,7 @@ public class PaymentProducer {
     }
 
     public void sendPaymentEvent(PaymentCreatedEvent event){
-        kafkaTemplate.send("created-payment-topic", event.getPaymentId(), event);
+        kafkaTemplate.send("created-payment-topic", event.getOrderId(), event);
     }
 
 }

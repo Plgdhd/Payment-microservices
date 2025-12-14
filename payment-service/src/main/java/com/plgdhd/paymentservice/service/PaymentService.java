@@ -28,7 +28,7 @@ public class PaymentService {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
         this.randomApiClient = randomApiClient;
-    })
+    }
 
     @Transactional
     public PaymentDto createPayment(PaymentDto dto) {

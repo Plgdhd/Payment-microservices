@@ -8,7 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class PaymentCreatedEvent {
-    private Long paymentId;
     private Long orderId;
     private String status;
 }

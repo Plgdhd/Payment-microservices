@@ -2,6 +2,7 @@ package com.plgdhd.paymentservice.model.dto;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
+import org.checkerframework.checker.units.qual.N;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -11,11 +12,15 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class PaymentDto {
-//    private String id;
+    @NotBlank
+    private String id;
     @NotNull
     private Long orderId;
     @NotNull
     private Long userId;
+
+    @NotNull
+    private String status;
 
     @NotNull
     @DecimalMin("0.00")
