@@ -54,7 +54,7 @@ public class OrderService {
     @Transactional
     public OrderResponseDTO createOrder(OrderCreateDTO orderCreateDTO) {
 
-        UserInfoDTO userInfo = userServiceClient.getUserByEmail(orderCreateDTO.getUserEmail());
+        UserInfoDTO userInfo = userServiceClient.getUserByEmail(orderCreateDTO.getEmail());
         Order order = orderMapper.toEntity(orderCreateDTO);
         order.setUserId(userInfo.getId());
         order.setStatus(OrderStatus.PENDING);
@@ -98,7 +98,7 @@ public class OrderService {
         order.setCreationDate(LocalDate.now());
         order = orderRepository.save(order);
 
-        UserInfoDTO fallback = new UserInfoDTO(null, "N/A", "N/A", null, orderCreateDTO.getUserEmail());
+        UserInfoDTO fallback = new UserInfoDTO(null, "N/A", "N/A", null, orderCreateDTO.getEmail());
         OrderResponseDTO response = orderMapper.toResponseDTO(order);
         response.setUserInfo(fallback);
         return response;

@@ -20,7 +20,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO request) {
-        return ResponseEntity.ok(authService.register(request));
+        RegisterResponseDTO dto = authService.register(request);
+        System.out.println("AUTH REGISTER RESPONSE (inside auth service): " + dto);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/login")

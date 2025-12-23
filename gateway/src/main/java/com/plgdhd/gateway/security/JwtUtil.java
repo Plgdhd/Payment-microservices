@@ -1,4 +1,4 @@
-package com.plgdhd.gateway.util;
+package com.plgdhd.gateway.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

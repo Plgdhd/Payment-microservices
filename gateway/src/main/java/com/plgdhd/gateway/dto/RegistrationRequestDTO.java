@@ -3,7 +3,7 @@ package com.plgdhd.gateway.dto;
 import lombok.Data;
 
 @Data
-public class RegistrationRequest {
+public class RegistrationRequestDTO {
 
     private AuthRequestDTO authData;
     private UserProfileDTO userData;

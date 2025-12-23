@@ -75,7 +75,7 @@ class OrderServiceTest {
 
         createDTO = new OrderCreateDTO();
         createDTO.setUserId(USER_ID);
-        createDTO.setUserEmail(TEST_EMAIL);
+        createDTO.setEmail(TEST_EMAIL);
         createDTO.setOrderItems(List.of(new OrderItemCreateDTO(ITEM_ID, BigDecimal.valueOf(2))));
 
         userInfoDTO = new UserInfoDTO(USER_ID, "Alex", "Plgdhd", LocalDate.of(1995, 5, 15), TEST_EMAIL);
