@@ -26,7 +26,9 @@ spring:
     password: ${DB_PASSWORD:auth_password}
     driver-class-name: org.postgresql.Driver
 
-
+internal:
+  service:
+    secret: ${INTERNAL_SERVICE_SECRET}
 server:
   port: 8082
 

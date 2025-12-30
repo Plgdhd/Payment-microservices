@@ -76,6 +76,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ACCESS_EXPIRATION_SEC=700
       - JWT_REFRESH_EXPIRATION_SEC=86400
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -93,6 +94,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${USER_SERVICE_DB_PASSWORD}
       - SPRING_REDIS_HOST=redis
       - SPRING_PROFILES_ACTIVE=prod
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       user-postgres:
         condition: service_healthy
@@ -111,6 +113,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=${ORDER_SERVICE_DB_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       order-postgres:
         condition: service_healthy
@@ -125,6 +128,7 @@ services:
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - SPRING_PROFILES_ACTIVE=prod
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       - authentication-service
       - user-service

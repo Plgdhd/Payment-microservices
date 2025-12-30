@@ -1,7 +1,6 @@
 package com.plgdhd.gateway.client;
 
 import com.plgdhd.gateway.dto.UserProfileDTO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,13 +20,13 @@ public class UserServiceClient {
     @Value("${services.user-service}")
     private String userServiceName;
 
-    public Mono<UserProfileDTO> createUserProfile(UserProfileDTO userProfileDTO) {
+    public Mono<UserProfileDTO> createUserProfile(UserProfileDTO userProfileDTO, String serviceToken) {
         return webClientBuilder.build()
                 .post()
                 .uri ("lb://" + userServiceName + "/api/users")
+                .header("Authorization", "Bearer " + serviceToken)
                 .bodyValue(userProfileDTO)
                 .retrieve()
                 .bodyToMono(UserProfileDTO.class);
     }
-
 }

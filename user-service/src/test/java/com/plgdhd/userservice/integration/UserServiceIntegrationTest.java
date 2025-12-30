@@ -78,6 +78,6 @@ class UserServiceIntegrationTest {
         userService.deleteUser(createdUserId);
 
         Assertions.assertThrows(RuntimeException.class, () ->
-                userService.getById(createdUserId));
+                userService.findById(createdUserId));
     }
 }

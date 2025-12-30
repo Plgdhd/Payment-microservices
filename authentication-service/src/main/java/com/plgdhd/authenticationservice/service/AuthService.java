@@ -56,13 +56,11 @@ public class AuthService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        System.out.println("USER CREDENTIALS IN AUTH SERVICE: " + creds);
-
         UserCredentials saved = userCredentialsRepository.save(creds);
-        System.out.println("SAVED ENTITY: id=" + saved.getId()
-                + ", username=" + saved.getUsername()
-                + ", role=" + saved.getRole()
-                + ", createdAt=" + saved.getCreatedAt());
+//        System.out.println("SAVED ENTITY: id=" + saved.getId()
+//                + ", username=" + saved.getUsername()
+//                + ", role=" + saved.getRole()
+//                + ", createdAt=" + saved.getCreatedAt());
 
 //        RegisterResponseDTO dto = userCredentialsMapper.toRegisterResponse(saved);
 //        System.out.println("MAPPED DTO: " + dto);
@@ -92,6 +90,13 @@ public class AuthService {
                 .build();
     }
 
+    public void delete(Long id){
+        UserCredentials userCredentials = userCredentialsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        userCredentialsRepository.delete(userCredentials);
+    }
+
     public TokenResponseDTO refresh(RefreshRequestDTO refreshRequestDTO) {
         if (!jwtUtil.validate(refreshRequestDTO.getRefreshToken()).getValid()) {
             throw new RuntimeException("Invalid refresh token");
@@ -113,5 +118,15 @@ public class AuthService {
 
     public TokenValidationResponseDTO validate(TokenRequestDTO tokenRequestDTO) {
         return jwtUtil.validate(tokenRequestDTO.getToken());
+    }
+
+    public TokenResponseDTO generateServiceToken(String serviceName, Role role) {
+        String accessToken = jwtUtil.generateAccessToken(serviceName, role);
+
+        return TokenResponseDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(null)
+                .role(role)
+                .build();
     }
 }

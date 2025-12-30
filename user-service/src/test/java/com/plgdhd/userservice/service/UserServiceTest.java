@@ -90,7 +90,7 @@ class UserServiceTest {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
         when(userMapper.toResponseDTO(user)).thenReturn(responseDTO);
 
-        UserResponseDTO result = userService.getById(TEST_USER_ID);
+        UserResponseDTO result = userService.findById(TEST_USER_ID);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(TEST_USER_ID);
@@ -103,7 +103,7 @@ class UserServiceTest {
     void getById_fail() {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getById(TEST_USER_ID))
+        assertThatThrownBy(() -> userService.findById(TEST_USER_ID))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("User not found!");
     }
@@ -138,7 +138,7 @@ class UserServiceTest {
         when(userRepository.findAll(PageRequest.of(0, 5))).thenReturn(usersPage);
         when(userMapper.toResponseDTO(user)).thenReturn(responseDTO);
 
-        Page<UserResponseDTO> result = userService.getAll(0, 5);
+        Page<UserResponseDTO> result = userService.findAll(0, 5);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).getId()).isEqualTo(TEST_USER_ID);

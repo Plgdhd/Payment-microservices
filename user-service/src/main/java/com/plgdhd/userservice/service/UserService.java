@@ -38,12 +38,12 @@ public class UserService {
         return userMapper.toResponseDTO(userRepository.save(user));
     }
 
-    public Page<UserResponseDTO> getAll(int page, int size) {
+    public Page<UserResponseDTO> findAll(int page, int size) {
         return userRepository.findAll(PageRequest.of(page, size)).map(userMapper::toResponseDTO);
     }
 
     @Cacheable(key = "#id")
-    public UserResponseDTO getById(long id) {
+    public UserResponseDTO findById(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
         return userMapper.toResponseDTO(user);

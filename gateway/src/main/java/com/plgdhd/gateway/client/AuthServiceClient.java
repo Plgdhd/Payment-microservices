@@ -2,10 +2,8 @@ package com.plgdhd.gateway.client;
 
 import com.plgdhd.gateway.dto.AuthRequestDTO;
 import com.plgdhd.gateway.dto.AuthResponseDTO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -32,12 +30,13 @@ public class AuthServiceClient {
                 .bodyToMono(AuthResponseDTO.class);
     }
 
-    public Mono<Void> delete(Long userId) {
+    public Mono<Void> delete(Long userId, String serviceToken) {
         return webClientBuilder.build()
                 .delete()
                 .uri("lb://" + authServiceName + "/api/auth/" + userId)
+                .header("Authorization", "Bearer " + serviceToken)
                 .retrieve()
                 .toBodilessEntity()
-                .map(res -> res.getBody());
+                .then();
     }
 }

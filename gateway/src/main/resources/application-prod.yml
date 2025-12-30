@@ -19,7 +19,7 @@ spring:
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/api/auth/**
+            - Path=/api/auth/**, /internal/**
 
         - id: user-service
           uri: lb://user-service
@@ -39,6 +39,8 @@ services:
   auth-service: auth-service
   user-service: user-service
 
-
+internal:
+  service:
+    secret: ${INTERNAL_SERVICE_SECRET}
 jwt:
   secret: ${JWT_SECRET}

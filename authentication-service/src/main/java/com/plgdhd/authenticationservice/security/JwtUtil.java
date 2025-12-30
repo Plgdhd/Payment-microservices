@@ -98,4 +98,8 @@ public class JwtUtil {
                 .getBody();
         return claims.get("role", String.class);
     }
+
+    public String generateServiceToken(String serviceName, Role role) {
+        return generateAccessToken(serviceName, role);
+    }
 }

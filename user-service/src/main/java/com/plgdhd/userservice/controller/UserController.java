@@ -37,13 +37,13 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<UserResponseDTO> users = userService.getAll(page, size);
+        Page<UserResponseDTO> users = userService.findAll(page, size);
         return ResponseEntity.status(HttpStatus.OK).body(users.getContent());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable long id) {
-        UserResponseDTO user = userService.getById(id);
+        UserResponseDTO user = userService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
