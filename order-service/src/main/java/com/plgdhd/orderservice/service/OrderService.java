@@ -12,6 +12,7 @@ import com.plgdhd.orderservice.model.*;
 import com.plgdhd.orderservice.repository.*;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @Service
 //@Transactional(readOnly = true)
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -54,7 +56,12 @@ public class OrderService {
     @Transactional
     public OrderResponseDTO createOrder(OrderCreateDTO orderCreateDTO) {
 
+
+        log.info("Trying to get user by email...");
+
         UserInfoDTO userInfo = userServiceClient.getUserByEmail(orderCreateDTO.getEmail());
+        log.info("User with email: " + userInfo.getName());
+
         Order order = orderMapper.toEntity(orderCreateDTO);
         order.setUserId(userInfo.getId());
         order.setStatus(OrderStatus.PENDING);
@@ -104,7 +111,7 @@ public class OrderService {
         return response;
     }
 
-//    @CircuitBreaker(name = "userService", fallbackMethod = "getOrderByIdFallback")
+    @CircuitBreaker(name = "userService", fallbackMethod = "getOrderByIdFallback")
     public OrderResponseDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found"));
@@ -137,7 +144,7 @@ public class OrderService {
             itemDtos.add(dto);
         }
 
-        UserInfoDTO fallback = new UserInfoDTO(null, "N/A", "N/A", null, null);
+        UserInfoDTO fallback = new UserInfoDTO(0L, "N/A", "N/A", null, null);
         OrderResponseDTO response = orderMapper.toResponseDTO(order);
         response.setUserInfo(fallback);
         response.setItems(itemDtos);
@@ -168,7 +175,7 @@ public class OrderService {
     }
 
     public Page<OrderResponseDTO> getOrdersByEmailFallback(String email, Pageable pageable, Throwable t) {
-        UserInfoDTO fallback = new UserInfoDTO(null, "N/A", "N/A", null, email);
+        UserInfoDTO fallback = new UserInfoDTO(0L, "N/A", "N/A", null, email);
         //TODO fallback fix
         Page<Order> orders = orderRepository.findByUserId(fallback.getId(), pageable);
 

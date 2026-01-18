@@ -71,6 +71,6 @@ public class PaymentService {
     private String fetchRandomStatus() {
         Integer random = randomApiClient.fetchRandomNumber();
         //TODO make throw enum
-        return (random % 2 == 0) ? "SUCCESS" : "FAILED";
+        return (random % 2 == 0) ? "COMPLETED" : "FAILED";
     }
 }

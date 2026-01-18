@@ -1,10 +1,7 @@
 package com.plgdhd.paymentservice.kafka;
 
-import com.plgdhd.paymentservice.event.OrderCreatedEvent;
 import com.plgdhd.paymentservice.event.PaymentCreatedEvent;
-import com.plgdhd.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +16,7 @@ public class PaymentProducer {
     }
 
     public void sendPaymentEvent(PaymentCreatedEvent event){
-        kafkaTemplate.send("created-payment-topic", event.getOrderId(), event);
+        kafkaTemplate.send("create-payment-topic", event.getOrderId(), event);
     }
 
 }

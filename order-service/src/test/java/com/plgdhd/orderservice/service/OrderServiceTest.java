@@ -4,6 +4,7 @@ import com.plgdhd.orderservice.client.UserServiceClient;
 import com.plgdhd.orderservice.common.OrderStatus;
 import com.plgdhd.orderservice.exception.ItemNotFoundException;
 import com.plgdhd.orderservice.exception.OrderNotFoundException;
+import com.plgdhd.orderservice.kafka.OrderProducer;
 import com.plgdhd.orderservice.mapper.OrderMapper;
 import com.plgdhd.orderservice.model.Item;
 import com.plgdhd.orderservice.model.Order;
@@ -38,6 +39,7 @@ class OrderServiceTest {
     @Mock private ItemRepository itemRepository;
     @Mock private OrderMapper orderMapper;
     @Mock private UserServiceClient userServiceClient;
+    @Mock private OrderProducer orderProducer;
 
     @InjectMocks private OrderService orderService;
 
@@ -94,9 +96,9 @@ class OrderServiceTest {
     void createOrder_success() {
         when(userServiceClient.getUserByEmail(TEST_EMAIL)).thenReturn(userInfoDTO);
 
-        when(orderMapper.toEntity(createDTO)).thenReturn(new Order());
+        when(orderMapper.toEntity(createDTO)).thenReturn(testOrder); // Возвращаем подготовленный Order
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(testItem));
-        when(orderMapper.toOrderItemEntity(any())).thenReturn(new OrderItem());
+        when(orderMapper.toOrderItemEntity(any())).thenReturn(testOrderItem); // Возвращаем подготовленный OrderItem с заполненным quantity
 
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> {
             Order o = i.getArgument(0);
@@ -121,7 +123,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.createOrder(createDTO);
 
         assertThat(result.getId()).isEqualTo(ORDER_ID);
-        assertThat(result.getStatus()).isEqualTo("PENDING");
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING.name());
         assertThat(result.getUserInfo().getEmail()).isEqualTo(TEST_EMAIL);
         assertThat(result.getItems()).hasSize(1);
 

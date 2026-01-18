@@ -5,6 +5,7 @@ import com.plgdhd.userservice.dto.UserRequestDTO;
 import com.plgdhd.userservice.dto.UserResponseDTO;
 import com.plgdhd.userservice.service.CardInfoService;
 import com.plgdhd.userservice.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -55,6 +57,7 @@ public class UserController {
 
     @GetMapping("/by-email")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@RequestParam String email) {
+        log.info("Getting user by email {}", email);
         UserResponseDTO user = userService.getByEmail(email);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }

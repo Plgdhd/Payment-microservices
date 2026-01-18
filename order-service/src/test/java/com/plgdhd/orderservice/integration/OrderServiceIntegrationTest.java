@@ -54,7 +54,7 @@ public class OrderServiceIntegrationTest {
     @DynamicPropertySource
     static void setWireMockUrl(DynamicPropertyRegistry registry) {
         registry.add("user.service.url", () ->
-                "http://localhost:" + wireMockServer.port()
+                "http://localhost:" + wireMockServer.port() + "/api/users"
         );
     }
 
@@ -124,7 +124,7 @@ public class OrderServiceIntegrationTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getUserInfo().getEmail()).isEqualTo(TEST_EMAIL);
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING.toString());
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING.name());
         verify(getRequestedFor(urlEqualTo(ENCODED_EMAIL_PATH)));
 
         assertThat(orderRepository.findById(result.getId())).isPresent();

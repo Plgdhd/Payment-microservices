@@ -5,11 +5,13 @@ import com.plgdhd.paymentservice.event.PaymentCreatedEvent;
 import com.plgdhd.paymentservice.mapper.PaymentMapper;
 import com.plgdhd.paymentservice.model.dto.PaymentDto;
 import com.plgdhd.paymentservice.service.PaymentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class PaymentConsumer {
 
     private final PaymentProducer paymentProducer;
@@ -30,12 +32,9 @@ public class PaymentConsumer {
             groupId = "payment-service-group"
     )
     public void handleOrderCreated(OrderCreatedEvent event) {
-        //TODO Loging
-        System.out.println("Received order event: " + event.getOrderId());
-
-
         PaymentDto paymentDto = paymentService.createPayment(paymentMapper.toDto(event));
 
+        log.info("Created payment for order: " + paymentDto.getOrderId() + " \nwith status: " + paymentDto.getStatus());
         paymentProducer.sendPaymentEvent(PaymentCreatedEvent.builder()
                         .orderId(event.getOrderId())
                         .status(paymentDto.getStatus())

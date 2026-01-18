@@ -1,5 +1,5 @@
 jwt:
-  access-expiration-sec: 700
+  access-expiration-sec: 50000
   refresh-expiration-sec: ${REFRESH_EXPIRATION_SEC:86400}
   secret: ${JWT_SECRET}
 

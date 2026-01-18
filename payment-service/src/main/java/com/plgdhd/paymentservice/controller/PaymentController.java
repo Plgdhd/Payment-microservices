@@ -2,8 +2,7 @@ package com.plgdhd.paymentservice.controller;
 
 import com.plgdhd.paymentservice.model.dto.PaymentDto;
 import com.plgdhd.paymentservice.service.PaymentService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,15 +11,20 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/payments")
 public class PaymentController {
+
     private final PaymentService paymentService;
 
-    @PostMapping
-    public PaymentDto create(@RequestBody @Valid PaymentDto paymentDto) {
-        return paymentService.createPayment(paymentDto);
+    @Autowired
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
     }
+
+//    @PostMapping
+//    public PaymentDto create(@RequestBody @Valid PaymentDto paymentDto) {
+//        return paymentService.createPayment(paymentDto);
+//    }
 
     @GetMapping("/order/{orderId}")
     public List<PaymentDto> findByOrder(@PathVariable Long orderId) {
