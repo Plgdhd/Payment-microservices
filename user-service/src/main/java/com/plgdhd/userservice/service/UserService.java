@@ -49,7 +49,7 @@ public class UserService {
         return userMapper.toResponseDTO(user);
     }
 
-    @Cacheable(key = "'email:' + #email ")
+
     public UserResponseDTO getByEmail(String email) {
         User user = userRepository.findByEmailNative(email)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
