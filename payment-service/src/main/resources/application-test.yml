@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: testdb
+  kafka:
+    bootstrap-servers: localhost:9092
+  main:
+    allow-bean-definition-overriding: true
+payment:
+  externalApiUrl: http://localhost:8089/fakeapi

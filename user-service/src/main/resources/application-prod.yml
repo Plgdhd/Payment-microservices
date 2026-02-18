@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: user-service
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
@@ -17,9 +19,9 @@ spring:
       timeout: 2000ms
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:user-service}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: jdbc:postgresql://${DB_HOST:user-postgres}:${DB_PORT:5432}/${DB_NAME:user_service}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:user_password}
     driver-class-name: org.postgresql.Driver
 
 
@@ -29,3 +31,14 @@ logging:
     org.springframework: WARN
 
 validity_period_of_card: 10
+jwt:
+  secret: ${JWT_SECRET}
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class RegisterResponseDTO {
+    private Long id; //TODO
     private String username;
     private Role role;
     private LocalDateTime createdAt;
