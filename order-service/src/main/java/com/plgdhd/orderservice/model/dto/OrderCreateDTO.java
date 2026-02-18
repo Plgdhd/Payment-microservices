@@ -22,7 +22,7 @@ public class OrderCreateDTO {
 
     @NotBlank(message = "User email is required")
     @Email(message = "Invalid email format")
-    private String userEmail;
+    private String email;
 
     @NotEmpty(message  = "Order must contain minimum one item")
     private List<@Valid OrderItemCreateDTO> orderItems;

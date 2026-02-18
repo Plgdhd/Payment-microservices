@@ -28,5 +28,5 @@ public class UserCredentials {
     @Column(nullable = false)
     private Role role;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 }

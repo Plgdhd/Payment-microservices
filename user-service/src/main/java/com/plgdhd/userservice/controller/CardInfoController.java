@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cards")
+@RequestMapping("/api/users/cards")
 public class CardInfoController {
 
     private final CardInfoService cardInfoService;

@@ -23,6 +23,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.server.ResponseStatusException;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.math.BigDecimal;
 import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -52,7 +54,7 @@ public class OrderServiceIntegrationTest {
     @DynamicPropertySource
     static void setWireMockUrl(DynamicPropertyRegistry registry) {
         registry.add("user.service.url", () ->
-                "http://localhost:" + wireMockServer.port()
+                "http://localhost:" + wireMockServer.port() + "/api/users"
         );
     }
 
@@ -115,14 +117,14 @@ public class OrderServiceIntegrationTest {
         OrderCreateDTO createDTO = new OrderCreateDTO(
                 USER_ID,
                 TEST_EMAIL,
-                List.of(new OrderItemCreateDTO(ITEM_ID, 2))
+                List.of(new OrderItemCreateDTO(ITEM_ID, BigDecimal.valueOf(2)))
         );
 
         OrderResponseDTO result = orderService.createOrder(createDTO);
 
         assertThat(result).isNotNull();
         assertThat(result.getUserInfo().getEmail()).isEqualTo(TEST_EMAIL);
-        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING.toString());
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING.name());
         verify(getRequestedFor(urlEqualTo(ENCODED_EMAIL_PATH)));
 
         assertThat(orderRepository.findById(result.getId())).isPresent();

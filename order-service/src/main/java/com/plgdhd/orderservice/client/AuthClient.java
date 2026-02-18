@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "auth-service", url ="http://localhost:8081/api/auth")
+@FeignClient(name = "auth-service", path ="/api/auth")
 public interface AuthClient {
 
     @PostMapping("/validate")

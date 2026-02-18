@@ -1,15 +1,23 @@
 spring:
-  config:
-    activate:
-      on-profile: test
+  application:
+    name: payment-service
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: testdb
-  kafka:
-    bootstrap-servers: localhost:9092
-  main:
-    allow-bean-definition-overriding: true
-payment:
-  externalApiUrl: http://localhost:8089/fakeapi
+      uri: mongodb://payment-mongo:27017/test
+  autoconfigure:
+    exclude:
+#      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+#      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+random:
+  api:
+    url: https://www.randomnumberapi.com/api/v1.0/random?min=1&max=100&count=1
+mongock:
+  migration-scan-package: com.plgdhd.paymentservice.migration
+
+logging:
+  level:
+    com.plgdhd.paymentservice: INFO
+    org.springframework: WARN
+    org.testcontainers: WARN
+    com.github.tomakehurst.wiremock: WARN
+

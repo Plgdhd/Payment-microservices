@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpResponse;
+
 @Controller
 @RequestMapping("api/auth")
 public class AuthController {
@@ -20,12 +22,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO request) {
-        return ResponseEntity.ok(authService.register(request));
+        RegisterResponseDTO dto = authService.register(request);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDTO> login(@RequestBody AuthRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id){
+        authService.delete(id);
+        return ResponseEntity.ok("Deleted successfully from auth service");
     }
 
     @PostMapping("/validate")

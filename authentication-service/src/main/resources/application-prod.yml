@@ -1,5 +1,5 @@
 jwt:
-  access-expiration-sec: 700
+  access-expiration-sec: 50000
   refresh-expiration-sec: ${REFRESH_EXPIRATION_SEC:86400}
   secret: ${JWT_SECRET}
 
@@ -13,7 +13,7 @@ eureka:
 
 spring:
   application:
-    name: authentication-service
+    name: auth-service
 
   jpa:
     hibernate:
@@ -26,7 +26,9 @@ spring:
     password: ${DB_PASSWORD:auth_password}
     driver-class-name: org.postgresql.Driver
 
-
+internal:
+  service:
+    secret: ${INTERNAL_SERVICE_SECRET}
 server:
   port: 8082
 

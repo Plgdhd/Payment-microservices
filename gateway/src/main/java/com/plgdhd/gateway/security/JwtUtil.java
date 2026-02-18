@@ -1,4 +1,4 @@
-package com.plgdhd.gateway.util;
+package com.plgdhd.gateway.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -15,7 +15,6 @@ public class JwtUtil {
     private String secret;
 
     public void validateToken(final String token) {
-//        Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
         Jwts.parser().setSigningKey(getSignKey()).build().parseClaimsJws(token);
     }
 

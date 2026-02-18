@@ -4,6 +4,7 @@ import com.plgdhd.orderservice.client.UserServiceClient;
 import com.plgdhd.orderservice.common.OrderStatus;
 import com.plgdhd.orderservice.exception.ItemNotFoundException;
 import com.plgdhd.orderservice.exception.OrderNotFoundException;
+import com.plgdhd.orderservice.kafka.OrderProducer;
 import com.plgdhd.orderservice.mapper.OrderMapper;
 import com.plgdhd.orderservice.model.Item;
 import com.plgdhd.orderservice.model.Order;
@@ -21,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +39,7 @@ class OrderServiceTest {
     @Mock private ItemRepository itemRepository;
     @Mock private OrderMapper orderMapper;
     @Mock private UserServiceClient userServiceClient;
+    @Mock private OrderProducer orderProducer;
 
     @InjectMocks private OrderService orderService;
 
@@ -69,12 +73,12 @@ class OrderServiceTest {
         testOrderItem.setId(10L);
         testOrderItem.setOrder(testOrder);
         testOrderItem.setItem(testItem);
-        testOrderItem.setQuantity(2);
+        testOrderItem.setQuantity(BigDecimal.valueOf(2));
 
         createDTO = new OrderCreateDTO();
         createDTO.setUserId(USER_ID);
-        createDTO.setUserEmail(TEST_EMAIL);
-        createDTO.setOrderItems(List.of(new OrderItemCreateDTO(ITEM_ID, 2)));
+        createDTO.setEmail(TEST_EMAIL);
+        createDTO.setOrderItems(List.of(new OrderItemCreateDTO(ITEM_ID, BigDecimal.valueOf(2))));
 
         userInfoDTO = new UserInfoDTO(USER_ID, "Alex", "Plgdhd", LocalDate.of(1995, 5, 15), TEST_EMAIL);
 
@@ -84,7 +88,7 @@ class OrderServiceTest {
         responseDTO.setCreationDate(LocalDate.now());
         responseDTO.setUserInfo(userInfoDTO);
         responseDTO.setItems(List.of(
-                new OrderItemResponseDTO(10L, "Laptop", 999L, 2) // Цена в DTO должна соответствовать Long
+                new OrderItemResponseDTO(10L, "Laptop", 999L, BigDecimal.valueOf(2)) // Цена в DTO должна соответствовать Long
         ));
     }
 
@@ -92,9 +96,9 @@ class OrderServiceTest {
     void createOrder_success() {
         when(userServiceClient.getUserByEmail(TEST_EMAIL)).thenReturn(userInfoDTO);
 
-        when(orderMapper.toEntity(createDTO)).thenReturn(new Order());
+        when(orderMapper.toEntity(createDTO)).thenReturn(testOrder); // Возвращаем подготовленный Order
         when(itemRepository.findById(ITEM_ID)).thenReturn(Optional.of(testItem));
-        when(orderMapper.toOrderItemEntity(any())).thenReturn(new OrderItem());
+        when(orderMapper.toOrderItemEntity(any())).thenReturn(testOrderItem); // Возвращаем подготовленный OrderItem с заполненным quantity
 
         when(orderRepository.save(any(Order.class))).thenAnswer(i -> {
             Order o = i.getArgument(0);
@@ -110,7 +114,7 @@ class OrderServiceTest {
             oi.setId(10L);
             oi.setOrder(testOrder);
             oi.setItem(testItem);
-            oi.setQuantity(2);
+            oi.setQuantity(BigDecimal.valueOf(2));
             return oi;
         });
         when(orderMapper.toResponseDTO(any(Order.class))).thenReturn(responseDTO);
@@ -119,7 +123,7 @@ class OrderServiceTest {
         OrderResponseDTO result = orderService.createOrder(createDTO);
 
         assertThat(result.getId()).isEqualTo(ORDER_ID);
-        assertThat(result.getStatus()).isEqualTo("PENDING");
+        assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING.name());
         assertThat(result.getUserInfo().getEmail()).isEqualTo(TEST_EMAIL);
         assertThat(result.getItems()).hasSize(1);
 

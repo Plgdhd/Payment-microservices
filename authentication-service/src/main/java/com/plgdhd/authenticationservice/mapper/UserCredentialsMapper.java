@@ -8,11 +8,15 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface UserCredentialsMapper {
-    RegisterResponseDTO toRegisterResponse(UserCredentials userCredentials);
+
     RegisterRequestDTO toRegisterRequest(UserCredentials userCredentials);
+
+    RegisterResponseDTO toRegisterResponse(UserCredentials userCredentials);
+
     AuthRequestDTO toAuthRequest(UserCredentials userCredentials);
 
     UserCredentials toUserCredentials(AuthRequestDTO registerResponseDTO);
+
     UserCredentials toUserCredentials(RegisterRequestDTO registerResponseDTO);
 
 }

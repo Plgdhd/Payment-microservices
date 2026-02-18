@@ -76,6 +76,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ACCESS_EXPIRATION_SEC=700
       - JWT_REFRESH_EXPIRATION_SEC=86400
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -93,6 +94,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${USER_SERVICE_DB_PASSWORD}
       - SPRING_REDIS_HOST=redis
       - SPRING_PROFILES_ACTIVE=prod
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       user-postgres:
         condition: service_healthy
@@ -111,6 +113,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=${ORDER_SERVICE_DB_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
       order-postgres:
         condition: service_healthy
@@ -125,10 +129,12 @@ services:
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - SPRING_PROFILES_ACTIVE=prod
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       - authentication-service
       - user-service
       - order-service
+      - payment-service
 
   eureka-server:
     build: ./eureka
@@ -137,62 +143,88 @@ services:
       - "8761:8761"
 
 
-  #
-#  kafka:
-#    image: confluentinc/cp-kafka:7.5.1
-#    container_name: kafka
-#    depends_on:
-#      - zookeeper
-#    ports:
-#      - "9092:9092"
-#    environment:
-#      KAFKA_BROKER_ID: 1
-#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
-#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-#      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
-  # payment-mongo:
-  #   image: mongo:6.0
-  #   container_name: payment-mongo
-  #   restart: always
-  #   volumes:
-  #     - payment_mongo_data:/data/db
-  #   ports:
-  #     - "27017:27017"
+  kafka:
+      image: confluentinc/cp-kafka:7.5.1
+      container_name: kafka
+      depends_on:
+        zookeeper:
+          condition: service_healthy
+      ports:
+        - "9092:9092"
+      environment:
+        KAFKA_BROKER_ID: 2
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+        
+        KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      healthcheck:
+        test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092"]
+        interval: 10s
+        timeout: 5s
+        retries: 10
 
-  # payment-service:
-  #   build: ./payment-service
-  #   container_name: payment-service
-  #   ports:
-  #     - "8084:8080"
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=prod
-  #     - MONGO_HOST=payment-mongo
-  #     - MONGO_PORT=27017
-  #     - MONGO_DB_NAME=payments
-  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-  #     - PAYMENT_EXTERNAL_API_URL=http://external-api-stub:8089/random
-  #   depends_on:
-  #     - payment-mongo
-  #     - kafka
-  #     - external-api-stub
+  payment-mongo:
+    image: mongo:7.0
+    container_name: payment-mongo
+    restart: always
+    volumes:
+      - payment_mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${PAYMENT_SERVICE_DB_PASSWORD}
+    healthcheck:
+      test: >
+        mongosh -u admin -p "$PAYMENT_SERVICE_DB_PASSWORD"
+        --authenticationDatabase admin
+        --eval "db.adminCommand('ping')"
+      timeout: 5s
+      retries: 10
 
-  # external-api-stub:
-  #   image: wiremock/wiremock:3.3.1
-  #   container_name: external-api-stub
-  #   ports:
-  #     - "8089:8089"
-  #   command: --global-response-templating --verbose
-  #   volumes:
-  #     - ./wiremock:/home/wiremock
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8084
+      - MONGO_URI=mongodb://admin:${PAYMENT_SERVICE_DB_PASSWORD}@payment-mongo:27017/paymentdb?authSource=admin
+      - RANDOM_API_URL=https://www.randomnumberapi.com
+      - EUREKA_URL=http://eureka-server:8761/eureka
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      payment-mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
 
 volumes:
   auth_postgres_data:
   user_postgres_data:
   order_postgres_data:
   redis_data:
-  # payment_mongo_data:
+  payment_mongo_data:

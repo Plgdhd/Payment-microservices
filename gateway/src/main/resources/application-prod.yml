@@ -17,28 +17,30 @@ spring:
           enabled: true
       routes:
         - id: auth-service
-          uri: http://authentication-service:8082
+          uri: lb://auth-service
           predicates:
-            - Path=/api/auth/**
+            - Path=/api/auth/**, /internal/**
 
         - id: user-service
-          uri: http://user-service:8081
+          uri: lb://user-service
           predicates:
-            - Path=/api/users/**, /api/cards/**
+            - Path=/api/users/**
 
         - id: order-service
-          uri: http://order-service:8083
+          uri: lb://order-service
           predicates:
             - Path=/api/orders/**
 
-#        - id: payment-service
-#          uri: http://payment-service:8084
-#          predicates:
-#            - Path=/api/payments/**
+        - id: payment-service
+          uri: lb:payment-service
+          predicates:
+            - Path=/api/payments/**
 services:
-  auth-url: http://authentication-service:8082
-  user-url: http://user-service:8081
+  auth-service: auth-service
+  user-service: user-service
 
-
+internal:
+  service:
+    secret: ${INTERNAL_SERVICE_SECRET}
 jwt:
   secret: ${JWT_SECRET}
